@@ -1,0 +1,27 @@
+#启动命令：docker compose up -d
+version: '3.3'
+
+services:
+  ros_dev_container:
+    # 自定义服务名称
+    container_name: ros_dev_container # 自定义容器名称
+    network_mode: "host" # 使用主机网络模式
+    privileged: true # 提升容器权限，便于访问硬件设备
+    image: ros_dev # 使用构建的镜像
+    command: tail -f /dev/null # 保持容器运行
+    volumes:
+      # 挂载 X11 以支持 GUI 应用（如 Rviz 和 Gazebo）
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      # 挂载设备文件夹以允许容器访问硬件设备
+      - "/dev:/dev:rw"
+      # 将主机的 ROS 工作空间挂载到容器中
+      - "~/ros1_ws:/home/me/docker_ws:rw"
+      # 可选：额外挂载其他工作目录文件夹
+      - "./ENVIRONMENTS:/root/ENVIRONMENTS:rw"
+      - "./SHARE:/root/SHARE:rw"
+    working_dir: /root # 容器的默认工作目录
+    environment:
+      # 配置 GUI 环境，确保容器可以使用主机的显示
+      - DISPLAY=$DISPLAY
+      - LC_ALL=C.UTF-8
+      - NVIDIA_DRIVER_CAPABILITIES=all
