@@ -6,7 +6,7 @@ RUN apt update && apt install -y python3-catkin-tools \
     net-tools \
     ros-noetic-geographic-msgs \
     ros-noetic-tf2-sensor-msgs ros-noetic-tf2-geometry-msgs ros-noetic-image-transport \
-    net-tools clang-format tmux curl wget git
+    net-tools clang-format tmux curl wget git nano vim iputils-ping software-properties-common
 # && apt clean && rm -rf /var/lib/apt/lists/*
 
 ENV ROS_DISTRO=noetic
@@ -17,7 +17,7 @@ RUN mkdir -p /root/.vscode-server && \
     tar -xzvf vscode-server.tar.gz -C /root/.vscode-server --strip-components=1 && \
     rm vscode-server.tar.gz
 
-RUN ls -l /root/.vscode-server/bin
+# RUN ls -l /root/.vscode-server/bin
 
 # 创建安装扩展脚本
 RUN echo '#!/bin/bash\n/root/.vscode-server/bin/code-server --install-extension "$1"' > /usr/local/bin/install-vscode-extension && \
@@ -41,21 +41,22 @@ RUN bash -c "/usr/local/bin/install-vscode-extension njpwerner.autodocstring && 
 # 配置 clangd 插件
 RUN apt install clangd-18 -y 
 RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
-RUN useradd -m -s /bin/bash me && \
-    echo "me ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# RUN useradd -m -s /bin/bash me && \
+#     echo "me ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # 启动 SSH 服务（必须配置以支持远程连接）
 # RUN mkdir -p /var/run/sshd && \
 #     echo 'root:password' | chpasswd && \
 #     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
 #     sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
-WORKDIR /home/me
-USER me
-RUN mkdir -p /home/me/.vscode-server/data/Machine && \
+# WORKDIR /home/me
+# USER me
+# RUN mkdir -p /home/me/.vscode-server/data/Machine && \
+#     echo '{ \
+#     "clangd.path": "/usr/bin/clangd-18" \
+#     }' > /home/me/.vscode-server/data/Machine/settings.json
+RUN mkdir -p /root/.vscode-server/data/Machine && \
     echo '{ \
     "clangd.path": "/usr/bin/clangd-18" \
-    }' > /home/me/.vscode-server/data/Machine/settings.json
-
-
-
+    }' > /root/.vscode-server/data/Machine/settings.json
 CMD ["bash"]

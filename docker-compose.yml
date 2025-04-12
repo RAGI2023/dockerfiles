@@ -15,7 +15,7 @@ services:
       # 挂载设备文件夹以允许容器访问硬件设备
       - "/dev:/dev:rw"
       # 将主机的 ROS 工作空间挂载到容器中
-      - "~/ros1_ws:/home/me/docker_ws:rw"
+      - "~/ros1_ws:/root/docker_ws:rw"
       # 可选：额外挂载其他工作目录文件夹
       - "./ENVIRONMENTS:/root/ENVIRONMENTS:rw"
       - "./SHARE:/root/SHARE:rw"
@@ -23,5 +23,6 @@ services:
     environment:
       # 配置 GUI 环境，确保容器可以使用主机的显示
       - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
       - LC_ALL=C.UTF-8
       - NVIDIA_DRIVER_CAPABILITIES=all
