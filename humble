@@ -1,0 +1,73 @@
+FROM ros:humble-ros-core-jammy
+USER root
+
+RUN sed -i 's|http://archive.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list 
+
+# install bootstrap tools
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    python3-colcon-common-extensions \
+    python3-colcon-mixin \
+    python3-rosdep \
+    python3-vcstool \
+    && rm -rf /var/lib/apt/lists/*
+
+# bootstrap rosdep
+RUN rosdep init && \
+    rosdep update --rosdistro $ROS_DISTRO
+
+# setup colcon mixin and metadata
+RUN colcon mixin add default \
+    https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
+    colcon mixin update && \
+    colcon metadata add default \
+    https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
+    colcon metadata update
+
+# install ros2 packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-ros-base=0.10.0-1* \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-geographic-msgs \
+    ros-humble-tf2-sensor-msgs ros-humble-tf2-geometry-msgs ros-humble-image-transport \
+    net-tools clang-format tmux curl wget nano vim iputils-ping software-properties-common tree\
+    && rm -rf /var/lib/apt/lists/*
+
+RUN echo "source /opt/ros/humble/setup.bash" >> /etc/bash.bashrc
+
+# vscode server 相关
+RUN mkdir -p /root/.vscode-server && \
+    wget -O vscode-server.tar.gz https://update.code.visualstudio.com/latest/server-linux-x64/stable && \
+    tar -xzvf vscode-server.tar.gz -C /root/.vscode-server --strip-components=1 && \
+    rm vscode-server.tar.gz
+# 创建安装扩展脚本
+RUN echo '#!/bin/bash\n/root/.vscode-server/bin/code-server --install-extension "$1"' > /usr/local/bin/install-vscode-extension && \
+    chmod +x /usr/local/bin/install-vscode-extension
+
+# 安装vscode插件
+RUN bash -c "/usr/local/bin/install-vscode-extension njpwerner.autodocstring && \
+    /usr/local/bin/install-vscode-extension ms-ceintl.vscode-language-pack-zh-hans && \
+    /usr/local/bin/install-vscode-extension llvm-vs-code-extensions.vscode-clangd && \
+    /usr/local/bin/install-vscode-extension ms-vscode.cmake-tools && \
+    /usr/local/bin/install-vscode-extension github.copilot && \
+    /usr/local/bin/install-vscode-extension eamodio.gitlens && \
+    /usr/local/bin/install-vscode-extension yzhang.markdown-all-in-one && \
+    /usr/local/bin/install-vscode-extension shd101wyy.markdown-preview-enhanced && \
+    /usr/local/bin/install-vscode-extension ms-python.vscode-pylance && \
+    /usr/local/bin/install-vscode-extension ms-python.python && \
+    /usr/local/bin/install-vscode-extension ms-python.debugpy && \
+    /usr/local/bin/install-vscode-extension gruntfuggly.todo-tree && \
+    /usr/local/bin/install-vscode-extension kylinideteam.cmake-intellisence"
+
+RUN apt-get update && apt-get install -y --no-install-recommends clangd-15
+
+RUN mkdir -p /root/.vscode-server/data/Machine && \
+    echo '{ \
+    "clangd.path": "/usr/bin/clangd-15" \
+    }' > /root/.vscode-server/data/Machine/settings.json
+
+CMD ["bash"]
+
