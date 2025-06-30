@@ -12,6 +12,7 @@ services:
     volumes:
       # 挂载 X11 以支持 GUI 应用（如 Rviz 和 Gazebo）
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:rw
       # 挂载设备文件夹以允许容器访问硬件设备
       - "/dev:/dev:rw"
       # 将主机的 ROS 工作空间挂载到容器中
@@ -27,13 +28,14 @@ services:
       - LC_ALL=C.UTF-8
       - NVIDIA_DRIVER_CAPABILITIES=all
   humble_container:
-    container_name: humble_dev_container
+    container_name: humble_dev_container2
     network_mode: "host"
     privileged: true
     image: humble:1.0
     command: tail -f /dev/null
     volumes:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:rw
       - "/dev:/dev:rw"
       - "~/humble_ws:/root/humble_ws"
     working_dir: /root # 容器的默认工作目录
