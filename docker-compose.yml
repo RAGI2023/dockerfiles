@@ -45,4 +45,22 @@ services:
       - QT_X11_NO_MITSHM=1
       - LC_ALL=C.UTF-8
       - NVIDIA_DRIVER_CAPABILITIES=all
+  pointlio:
+    container_name: pointlio_container
+    network_mode: "host"
+    privileged: true
+    image: pointlio:3.0
+    command: tail -f /dev/null
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:rw
+      - "/dev:/dev:rw"
+      # - "~/humble_ws:/root/humble_ws"
+    working_dir: /root # 容器的默认工作目录
+    environment:
+      # 配置 GUI 环境，确保容器可以使用主机的显示
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - LC_ALL=C.UTF-8
+      - NVIDIA_DRIVER_CAPABILITIES=all
     
