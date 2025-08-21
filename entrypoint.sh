@@ -18,9 +18,9 @@ roslaunch point_lio mapping_mid360.launch ' C-m
 tmux new-window -t $SESSION_NAME:2
 tmux send-keys -t $SESSION_NAME:2 'source /root/ros2
 
-# 附着到这个session
-tmux attach-session -t $SESSION_NAME:3
+
+tmux new-window -t $SESSION_NAME:2
 tmux send-keys -t $SESSION_NAME:2 'source /opt/ros/noetic/setup.bash && source /opt/ros/foxy/setup.bash && export ROS_MASTER_URI=http://localhost:11311 && ros2 run ros1_bridge dynamic_bridge'
 
-# 保持容器运行（重要！）
+
 
