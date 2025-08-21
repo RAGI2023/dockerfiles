@@ -1,0 +1,38 @@
+FROM osrf/ros:noetic-desktop-full-focal
+USER root
+
+RUN sed -i 's|http://archive.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list 
+RUN apt update && apt install -y python3-catkin-tools \
+    net-tools \
+    ros-noetic-geographic-msgs \
+    ros-noetic-tf2-sensor-msgs ros-noetic-tf2-geometry-msgs ros-noetic-image-transport \
+    libgoogle-glog-dev protobuf-compiler ros-noetic-octomap-msgs ros-noetic-octomap-ros ros-noetic-joy python3-vcstool \
+    net-tools clang-format tmux curl wget git nano vim iputils-ping software-properties-common \
+    libzmqpp-dev libopencv-dev 
+
+WORKDIR /root
+
+RUN wget -c https://github.com/uzh-rpg/flightmare/releases/latest/download/RPG_Flightmare.tar.xz 
+
+# WORKDIR /root
+# RUN git clone https://github.com/uzh-rpg/flightmare.git
+# RUN echo "export FLIGHTMARE_PATH=/root/flightmare" >> /root/.bashrc
+# RUN pip install -r flightmare/requirements.txt
+# RUN cd flightmare/flightlib && pip install .
+
+# avoid ssh
+RUN git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+# ros dependencies
+RUN mkdir -p /root/flightmare_ws/src
+RUN cd flightmare_ws && catkin config --init --mkdirs --extend /opt/ros/noetic --merge-devel --cmake-args -DCMAKE_BUILD_TYPE=Release
+RUN cd flightmare_ws/src && git clone https://github.com/uzh-rpg/flightmare.git && vcs-import < flightmare/flightros/dependencies.yaml
+RUN cd flightmare_ws && catkin build
+RUN echo "source /root/flightmare_ws/devel/setup.bash" >> /root/.bashrc
+RUN echo "export FLIGHTMARE_PATH=/root/flightmare_ws/src/flightmare" >> /root/.bashrc
+RUN cd /root/flightmare_ws/src/flightmare/flightrender && tar -xf /root/RPG_Flightmare.tar.xz
+
+
+
+
+
