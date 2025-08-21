@@ -30,7 +30,7 @@ RUN cd flightmare_ws/src && git clone https://github.com/uzh-rpg/flightmare.git 
 RUN cd flightmare_ws && catkin build
 RUN echo "source /root/flightmare_ws/devel/setup.bash" >> /root/.bashrc
 RUN echo "export FLIGHTMARE_PATH=/root/flightmare_ws/src/flightmare" >> /root/.bashrc
-RUN cd /root/flightmare_ws/src/flightmare/flightrender && tar -xf /root/RPG_Flightmare.tar.xz
+RUN cd /root/flightmare_ws/src/flightmare/flightrender && tar -xf /root/RPG_Flightmare.tar.xz && rm /root/RPG_Flightmare.tar.xz
 
 
 
